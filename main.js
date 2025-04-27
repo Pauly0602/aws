@@ -38,7 +38,48 @@ async function loadStations(url) {
     let response = await fetch(url);
     let jsondata = await response.json();
 
-    // Wetterstationen mit Icons und Popups
+    jsondata.features.forEach((station) => {
+        const { name, lat, lon, temperature, humidity, wind_speed, weather_type } = station.properties;
+        
+        // Icon auswählen basierend auf dem Wettertyp
+        let icon;
+        if (weather_type === 'sunny') {
+            icon = L.icon({
+                iconUrl: 'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/svgs/solid/sun.svg',
+                iconSize: [32, 32],
+            });
+        } else if (weather_type === 'cloudy') {
+            icon = L.icon({
+                iconUrl: 'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/svgs/solid/cloud.svg',
+                iconSize: [32, 32],
+            });
+        } else if (weather_type === 'rainy') {
+            icon = L.icon({
+                iconUrl: 'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/svgs/solid/cloud-rain.svg',
+                iconSize: [32, 32],
+            });
+        } else if (weather_type === 'snowy') {
+            icon = L.icon({
+                iconUrl: 'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/svgs/solid/snowflake.svg',
+                iconSize: [32, 32],
+            });
+        }
 
+        // Marker für jede Wetterstation erstellen
+        let marker = L.marker([lat, lon], { icon: icon }).addTo(overlays.stations);
+
+        // Popup mit Wetterdaten
+        marker.bindPopup(`
+            <h3>${name}</h3>
+            <ul>
+                <li>Temperatur: ${temperature}°C</li>
+                <li>Luftfeuchtigkeit: ${humidity}%</li>
+                <li>Windgeschwindigkeit: ${wind_speed} km/h</li>
+            </ul>
+        `);
+    });
 }
+
+// GeoJSON-Daten für Wetterstationen laden
 loadStations("https://static.avalanche.report/weather_stations/stations.geojson");
+
