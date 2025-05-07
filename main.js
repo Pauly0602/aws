@@ -13,7 +13,7 @@ let map = L.map("map").setView([ibk.lat, ibk.lng], ibk.zoom);
 // thematische Layer
 let overlays = {
     stations: L.featureGroup().addTo(map),
-}
+};
 
 // Layer control
 L.control.layers({
@@ -33,53 +33,35 @@ L.control.scale({
     imperial: false,
 }).addTo(map);
 
-// Wetterstationen
+// Wetterstationen laden
 async function loadStations(url) {
     let response = await fetch(url);
     let jsondata = await response.json();
 
+    // Standard-Icon für Wetterstationen
+    const stationIcon = L.icon({
+        iconUrl: "icons/wifi.png",
+        iconSize: [32, 32],
+        iconAnchor: [16, 16],
+        popupAnchor: [0, -16],
+    });
+
     jsondata.features.forEach((station) => {
-        const { name, lat, lon, temperature, humidity, wind_speed, weather_type } = station.properties;
-        
-        // Icon auswählen basierend auf dem Wettertyp
-        let icon;
-        if (weather_type === 'sunny') {
-            icon = L.icon({
-                iconUrl: 'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/svgs/solid/sun.svg',
-                iconSize: [32, 32],
-            });
-        } else if (weather_type === 'cloudy') {
-            icon = L.icon({
-                iconUrl: 'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/svgs/solid/cloud.svg',
-                iconSize: [32, 32],
-            });
-        } else if (weather_type === 'rainy') {
-            icon = L.icon({
-                iconUrl: 'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/svgs/solid/cloud-rain.svg',
-                iconSize: [32, 32],
-            });
-        } else if (weather_type === 'snowy') {
-            icon = L.icon({
-                iconUrl: 'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/svgs/solid/snowflake.svg',
-                iconSize: [32, 32],
-            });
-        }
+        const props = station.properties;
+        const coords = station.geometry.coordinates;
+        const lat = coords[1];
+        const lon = coords[0];
 
-        // Marker für jede Wetterstation erstellen
-        let marker = L.marker([lat, lon], { icon: icon }).addTo(overlays.stations);
+        let marker = L.marker([lat, lon], {
+            icon: stationIcon
+        }).addTo(overlays.stations);
 
-        // Popup mit Wetterdaten
+        // Popup mit Namen + Seehöhe als h4
         marker.bindPopup(`
-            <h3>${name}</h3>
-            <ul>
-                <li>Temperatur: ${temperature}°C</li>
-                <li>Luftfeuchtigkeit: ${humidity}%</li>
-                <li>Windgeschwindigkeit: ${wind_speed} km/h</li>
-            </ul>
+            <h4>${props.name} (${props.elevation}m)</h4>
         `);
     });
 }
 
 // GeoJSON-Daten für Wetterstationen laden
 loadStations("https://static.avalanche.report/weather_stations/stations.geojson");
-
