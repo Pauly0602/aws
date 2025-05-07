@@ -38,7 +38,7 @@ async function loadStations(url) {
     let response = await fetch(url);
     let jsondata = await response.json();
 
-    // Standard-Icon für Wetterstationen
+    //Icon für Wetterstationen
     const stationIcon = L.icon({
         iconUrl: "icons/wifi.png",
         iconSize: [32, 32],
@@ -56,7 +56,7 @@ async function loadStations(url) {
             icon: stationIcon
         }).addTo(overlays.stations);
 
-        // Popup mit Namen + Seehöhe als h4
+        // Popup mit Namen + Seehöhe 
         marker.bindPopup(`
             <h4>${props.name} (${props.elevation}m)</h4>
         `);
