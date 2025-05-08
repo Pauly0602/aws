@@ -95,7 +95,7 @@ function showTemperature(jsondata) {
 function showWindspeed(jsondata) {
     L.geoJSON(jsondata, {
         filter: function (feature) {
-            if (feature.properties.WG > 0 && feature.properties.WG < 80) {
+            if (feature.properties.WG > 0 && feature.properties.WG < 300) {
                 return true;
             }
         },
