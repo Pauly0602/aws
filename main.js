@@ -13,7 +13,7 @@ let map = L.map("map").setView([ibk.lat, ibk.lng], ibk.zoom);
 // thematische Layer
 let overlays = {
     stations: L.featureGroup(),
-    temperature: L.featureGroup(),
+    temperature: L.featureGroup().addTo(map),
 }
 
 // Layer control
@@ -76,7 +76,7 @@ loadStations("https://static.avalanche.report/weather_stations/stations.geojson"
 function showTemperature(jsondata) {
     L.geoJSON(jsondata, {
         filter: function (feature) {
-            if (feature.properties.LT > 20 && feature.properties.LT < 50){
+            if (feature.properties.LT > -50 && feature.properties.LT < 50){
                 return true;
             } },
         pointToLayer: function (feature, latlng) {
@@ -90,4 +90,12 @@ function showTemperature(jsondata) {
     }).addTo(overlays.temperature);
     //TODO: display temperature data 
 }
-console.log(COLORS)
+console.log(COLORS);
+function getColor(value,ramp){
+    for (let rule of ramp) {
+        if (value >= rule.min && value < rule.max)
+            return rule.color;
+    }
+}
+let testColor = getColor(-5,COLORS.temperature);
+console.log ("TestColor fuer temp -3",testColor);
