@@ -7,13 +7,13 @@ let ibk = {
     zoom: 11,
 };
 
-// Karte initialisieren
+// Karte initialisierenn
 let map = L.map("map").setView([ibk.lat, ibk.lng], ibk.zoom);
 
 // thematische Layer
 let overlays = {
     stations: L.featureGroup().addTo(map),
-};
+}
 
 // Layer control
 L.control.layers({
@@ -33,36 +33,30 @@ L.control.scale({
     imperial: false,
 }).addTo(map);
 
-// Wetterstationen laden
+//Wetterstationen mit Icons und Popups
 async function loadStations(url) {
+    console.log(url);
     let response = await fetch(url);
     let jsondata = await response.json();
-
-    //Icon für Wetterstationen
-    const stationIcon = L.icon({
-        iconUrl: "icons/wifi.png",
-        iconSize: [32, 32],
-        iconAnchor: [16, 16],
-        popupAnchor: [0, -16],
-    });
-
-    jsondata.features.onEachFeature((station) => {
-        const props = station.properties;
-        const coords = station.geometry.coordinates;
-        const lat = coords[1];
-        const lon = coords[0];
-
-        let marker = L.marker([lat, lon], {
-            icon: stationIcon
-        }).addTo(overlays.stations);
-
-        // Popup mit Namen + Seehöhe 
-        marker.bindPopup(`
-            <h4>${props.name} (${props.elevation}m)</h4>
-        `);
-    });
+    console.log(jsondata);
+    L.geoJSON(jsondata, {
+        attribution: "Datenquelle: <a href='https://www.data.gv.at'> Stadt Wien</a>",
+        pointToLayer: function (feature, latlng) {
+            return L.marker(latlng, {
+                icon: L.icon({
+                    iconUrl: "icons/wifi.png",
+                    iconAnchor: [16, 37],
+                    popupAnchor: [0, -37]
+                })
+            });
+        },
+        onEachFeature: function (feature, layer) {
+            layer.bindPopup("Hallo");
+            console.log(feature.properties);
+            layer.bindPopup(`
+                    <h4></i>${feature.properties.name} (${feature.geometry.coordinates[2]}) m</h4>
+                 `);
+        } 
+    }).addTo(overlays.stations);
 }
-
-// GeoJSON-Daten für Wetterstationen laden
 loadStations("https://static.avalanche.report/weather_stations/stations.geojson");
-
