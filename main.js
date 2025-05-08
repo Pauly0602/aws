@@ -46,7 +46,7 @@ async function loadStations(url) {
         popupAnchor: [0, -16],
     });
 
-    jsondata.features.forEach((station) => {
+    jsondata.features.onEachFeature((station) => {
         const props = station.properties;
         const coords = station.geometry.coordinates;
         const lat = coords[1];
@@ -65,3 +65,4 @@ async function loadStations(url) {
 
 // GeoJSON-Daten für Wetterstationen laden
 loadStations("https://static.avalanche.report/weather_stations/stations.geojson");
+
