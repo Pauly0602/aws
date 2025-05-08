@@ -53,21 +53,37 @@ async function loadStations(url) {
             });
         },
         onEachFeature: function (feature, layer) {
-            let pointInTime = new Date (feature.properties.date);
-            console.log (pointInTime);
+            let pointInTime = new Date(feature.properties.date);
+            console.log(pointInTime);
             layer.bindPopup("Hallo");
             console.log(feature.properties);
             layer.bindPopup(`
                     <h4></i>${feature.properties.name} (${feature.geometry.coordinates[2]}) m</h4>
                     <ul>
                     <li> Lufttemperatur (C) ${feature.properties.LT !== undefined ? feature.properties.LT : "-"}</li>
-                    <li> Relative Luftfeuchtigkeit (%) ${feature.properties.RH ||"-" }</li>
-                    <li> Windgeschwindigkeit (km/h) ${feature.properties.WG ||"-" }</li>
-                    <li> Schneehöhe (cm) ${feature.properties.HS||"-" } </li>
+                    <li> Relative Luftfeuchtigkeit (%) ${feature.properties.RH || "-"}</li>
+                    <li> Windgeschwindigkeit (km/h) ${feature.properties.WG || "-"}</li>
+                    <li> Schneehöhe (cm) ${feature.properties.HS || "-"} </li>
                     </ul>
                     <span> ${pointInTime.toLocaleString()} </span>
                  `);
-        } 
+        }
     }).addTo(overlays.stations);
+    showTemperature(jsondata);
 }
 loadStations("https://static.avalanche.report/weather_stations/stations.geojson");
+
+function showTemperature(jsondata) {
+    L.geoJSON(jsondata, {
+        pointToLayer: function (feature, latlng) {
+        
+        return L.marker(latlng, {
+            icon: L.divIcon({
+                className: "aws-div-icon",
+                html: `<span>${feature.properties.LT} <span>`
+            }),
+        })
+    },
+    }).addTo(overlays.temperature);
+    //TODO: display temperature data 
+}
