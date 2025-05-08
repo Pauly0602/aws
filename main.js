@@ -14,6 +14,7 @@ let map = L.map("map").setView([ibk.lat, ibk.lng], ibk.zoom);
 let overlays = {
     stations: L.featureGroup(),
     temperature: L.featureGroup().addTo(map),
+    windspeed: L.featureGroup().addTo(map),
 }
 
 // Layer control
@@ -28,6 +29,7 @@ L.control.layers({
 }, {
     "Wetterstationen": overlays.stations,
     "Temperatur": overlays.temperature,
+    "Windgeschwindigkeit": overlays.windspeed,
 }).addTo(map);
 
 // Maßstab
@@ -66,33 +68,54 @@ async function loadStations(url) {
         }
     }).addTo(overlays.stations);
     showTemperature(jsondata);
+    showWindspeed(jsondata);
 }
 loadStations("https://static.avalanche.report/weather_stations/stations.geojson");
 
+// Temperatur
 function showTemperature(jsondata) {
     L.geoJSON(jsondata, {
         filter: function (feature) {
-            if (feature.properties.LT > -50 && feature.properties.LT < 50){
+            if (feature.properties.LT > -50 && feature.properties.LT < 50) {
                 return true;
-            } },
+            }
+        },
         pointToLayer: function (feature, latlng) {
-             let color = getColor (feature.properties.LT, COLORS.temperature);
-        return L.marker(latlng, {
-            icon: L.divIcon({
-                className: "aws-div-icon",
-                html: `<span style="background-color:${color}">${feature.properties.LT.toFixed(1)} </span>`
-            }),
-        })
-    },
+            let color = getColor(feature.properties.LT, COLORS.temperature);
+            return L.marker(latlng, {
+                icon: L.divIcon({
+                    className: "aws-div-icon",
+                    html: `<span style="background-color:${color}">${feature.properties.LT.toFixed(1)} </span>`
+                }),
+            })
+        },
     }).addTo(overlays.temperature);
+}
+// Windgeschwindigkeit
+function showWindspeed(jsondata) {
+    L.geoJSON(jsondata, {
+        filter: function (feature) {
+            if (feature.properties.WG > 0 && feature.properties.WG < 80) {
+                return true;
+            }
+        },
+        pointToLayer: function (feature, latlng) {
+            let color = getColor(feature.properties.WG, COLORS.windspeed);
+            return L.marker(latlng, {
+                icon: L.divIcon({
+                    className: "aws-div-icon",
+                    html: `<span style="background-color:${color}">${feature.properties.WG.toFixed(1)} </span>`
+                }),
+            })
+        },
+    }).addTo(overlays.windspeed);
+
     //TODO: display temperature data 
 }
 console.log(COLORS);
-function getColor(value,ramp){
+function getColor(value, ramp) {
     for (let rule of ramp) {
         if (value >= rule.min && value < rule.max)
             return rule.color;
     }
 }
-let testColor = getColor(-5,COLORS.temperature);
-console.log ("TestColor fuer temp -3",testColor);
