@@ -37,10 +37,8 @@ L.control.scale({
 
 //Wetterstationen mit Icons und Popups
 async function loadStations(url) {
-    console.log(url);
     let response = await fetch(url);
     let jsondata = await response.json();
-    console.log(jsondata);
     L.geoJSON(jsondata, {
         attribution: "Datenquelle: <a href='https://www.data.gv.at'> Stadt Wien</a>",
         pointToLayer: function (feature, latlng) {
@@ -54,9 +52,7 @@ async function loadStations(url) {
         },
         onEachFeature: function (feature, layer) {
             let pointInTime = new Date(feature.properties.date);
-            console.log(pointInTime);
             layer.bindPopup("Hallo");
-            console.log(feature.properties);
             layer.bindPopup(`
                     <h4></i>${feature.properties.name} (${feature.geometry.coordinates[2]}) m</h4>
                     <ul>
@@ -80,10 +76,11 @@ function showTemperature(jsondata) {
                 return true;
             } },
         pointToLayer: function (feature, latlng) {
+             let color = getColor (feature.properties.LT, COLORS.temperature);
         return L.marker(latlng, {
             icon: L.divIcon({
                 className: "aws-div-icon",
-                html: `<span>${feature.properties.LT} <span>`
+                html: `<span style="background-color:${color}">${feature.properties.LT} </span>`
             }),
         })
     },
