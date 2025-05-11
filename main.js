@@ -142,7 +142,7 @@ function showDirection(jsondata) {
             let speed = feature.properties.WG;
             let directionDeg = feature.properties.WD;
             let directionText = getWindDirectionText(directionDeg);
-            let color = getColor(speed, COLORS.direction); 
+            let color = getColor(speed, COLORS.windspeed); 
 
             return L.marker(latlng, {
                 icon: L.divIcon({
