@@ -16,6 +16,7 @@ let overlays = {
     temperature: L.featureGroup().addTo(map),
     windspeed: L.featureGroup().addTo(map),
     snow: L.featureGroup().addTo(map),
+    direction: L.featureGroup().addTo(map),
 }
 
     // Change default options
@@ -44,6 +45,7 @@ L.control.layers({
     "Temperatur": overlays.temperature,
     "Windgeschwindigkeit": overlays.windspeed,
     "Schnee": overlays.snow,
+    "Windrichtung & -geschwindigkeit": overlays.direction,
 }).addTo(map);
 
 // Maßstab
@@ -76,6 +78,7 @@ async function loadStations(url) {
                     <li> Relative Luftfeuchtigkeit (%) ${feature.properties.RH || "-"}</li>
                     <li> Windgeschwindigkeit (km/h) ${feature.properties.WG || "-"}</li>
                     <li> Schneehöhe (cm) ${feature.properties.HS || "-"} </li>
+                    <li> Windrichtung ("N", "NE", "E", "SE", "S", "SW", "W", "NW") ${feature.properties.WD || "-"} </li>
                     </ul>
                     <span> ${pointInTime.toLocaleString()} </span>
                  `);
@@ -84,6 +87,7 @@ async function loadStations(url) {
     showTemperature(jsondata);
     showWindspeed(jsondata);
     showSnow(jsondata);
+    showDirection(jsondata);
 }
 loadStations("https://static.avalanche.report/weather_stations/stations.geojson");
 
@@ -126,6 +130,31 @@ function showSnow(jsondata) {
         },
     }).addTo(overlays.snow);
 }
+
+
+// Direction (Windgeschwindigkeit u. -richtung)
+function showDirection(jsondata) {
+    L.geoJSON(jsondata, {
+        filter: function (feature) {
+            return feature.properties.WG > 0 && feature.properties.DD !== undefined;
+        },
+        pointToLayer: function (feature, latlng) {
+            let speed = feature.properties.WG;
+            let directionDeg = feature.properties.DD;
+            let directionText = getWindDirectionText(directionDeg);
+            let color = getColor(speed, COLORS.direction); 
+
+            return L.marker(latlng, {
+                icon: L.divIcon({
+                    className: "aws-div-icon",
+                    html: `<span style="background-color:${color}">${directionText}</span>`
+                })
+            });
+        },
+    }).addTo(overlays.direction);
+}
+
+
 // Windgeschwindigkeit
 function showWindspeed(jsondata) {
     L.geoJSON(jsondata, {
