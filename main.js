@@ -71,6 +71,7 @@ async function loadStations(url) {
     }).addTo(overlays.stations);
     showTemperature(jsondata);
     showWindspeed(jsondata);
+    showSnow(jsondata);
 }
 loadStations("https://static.avalanche.report/weather_stations/stations.geojson");
 
@@ -93,6 +94,26 @@ function showTemperature(jsondata) {
         },
     }).addTo(overlays.temperature);
 }
+
+// Schnee
+function showSnow(jsondata) {
+    L.geoJSON(jsondata, {
+        filter: function (feature) {
+            if (feature.properties.HS > 1 && feature.properties.HS < 500) {
+                return true;
+            }
+        },
+        pointToLayer: function (feature, latlng) {
+            let color = getColor(feature.properties.HS, COLORS.snow);
+            return L.marker(latlng, {
+                icon: L.divIcon({
+                    className: "aws-div-icon",
+                    html: `<span style="background-color:${color}">${feature.properties.HS.toFixed(1)} </span>`
+                }),
+            });
+        },
+    }).addTo(overlays.snow);
+}
 // Windgeschwindigkeit
 function showWindspeed(jsondata) {
     L.geoJSON(jsondata, {
@@ -112,27 +133,7 @@ function showWindspeed(jsondata) {
         },
     }).addTo(overlays.windspeed);
 
-    // Schnee
-    function showSnow(jsondata) {
-        L.geoJSON(jsondata, {
-            filter: function (feature) {
-                if (feature.properties.HS > 1 && feature.properties.HS < 500) {
-                    return true;
-                }
-            },
-            pointToLayer: function (feature, latlng) {
-                let color = getColor(feature.properties.HS, COLORS.snow);
-                return L.marker(latlng, {
-                    icon: L.divIcon({
-                        className: "aws-div-icon",
-                        html: `<span style="background-color:${color}">${feature.properties.LT.toFixed(1)} </span>`
-                    }),
-                })
-            },
-        }).addTo(overlays.snow);
-    }
-
-    //TODO: display temperature data 
+ //TODO: display temperature data 
 }
 console.log(COLORS);
 function getColor(value, ramp) {
