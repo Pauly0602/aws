@@ -136,11 +136,11 @@ function showSnow(jsondata) {
 function showDirection(jsondata) {
     L.geoJSON(jsondata, {
         filter: function (feature) {
-            return feature.properties.WG > 0 && feature.properties.DD !== undefined;
+            return feature.properties.WG > 0 && feature.properties.WD !== undefined;
         },
         pointToLayer: function (feature, latlng) {
             let speed = feature.properties.WG;
-            let directionDeg = feature.properties.DD;
+            let directionDeg = feature.properties.WD;
             let directionText = getWindDirectionText(directionDeg);
             let color = getColor(speed, COLORS.direction); 
 
@@ -182,4 +182,9 @@ function getColor(value, ramp) {
         if (value >= rule.min && value < rule.max)
             return rule.color;
     }
+}
+
+function getWindDirectionText(deg) {
+    const directions = ["N", "NE", "E", "SE", "S", "SW", "W", "NW"];
+    return directions[Math.round(deg / 45) % 8];
 }
