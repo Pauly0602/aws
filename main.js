@@ -15,6 +15,7 @@ let overlays = {
     stations: L.featureGroup(),
     temperature: L.featureGroup().addTo(map),
     windspeed: L.featureGroup().addTo(map),
+    snow: L.featureGroup().addTo(map),
 }
 
 // Layer control
@@ -30,6 +31,7 @@ L.control.layers({
     "Wetterstationen": overlays.stations,
     "Temperatur": overlays.temperature,
     "Windgeschwindigkeit": overlays.windspeed,
+    "Schnee": overlays.snow,
 }).addTo(map);
 
 // Maßstab
@@ -109,6 +111,26 @@ function showWindspeed(jsondata) {
             })
         },
     }).addTo(overlays.windspeed);
+
+    // Schnee
+    function showSnow(jsondata) {
+        L.geoJSON(jsondata, {
+            filter: function (feature) {
+                if (feature.properties.HS > 0 && feature.properties.HS < 10) {
+                    return true;
+                }
+            },
+            pointToLayer: function (feature, latlng) {
+                let color = getColor(feature.properties.HS, COLORS.snow);
+                return L.marker(latlng, {
+                    icon: L.divIcon({
+                        className: "aws-div-icon",
+                        html: `<span style="background-color:${color}">${feature.properties.LT.toFixed(1)} </span>`
+                    }),
+                })
+            },
+        }).addTo(overlays.snow);
+    }
 
     //TODO: display temperature data 
 }
