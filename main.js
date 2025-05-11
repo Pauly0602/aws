@@ -116,7 +116,7 @@ function showWindspeed(jsondata) {
     function showSnow(jsondata) {
         L.geoJSON(jsondata, {
             filter: function (feature) {
-                if (feature.properties.HS > 0 && feature.properties.HS < 10) {
+                if (feature.properties.HS > 1 && feature.properties.HS < 500) {
                     return true;
                 }
             },
