@@ -136,23 +136,24 @@ function showSnow(jsondata) {
 function showDirection(jsondata) {
     L.geoJSON(jsondata, {
         filter: function (feature) {
-            return feature.properties.WG > 0 && feature.properties.WD !== undefined;
-        },
-        pointToLayer: function (feature, latlng) {
-            let speed = feature.properties.WG;
-            let directionDeg = feature.properties.WD;
-            let directionText = getWindDirectionText(directionDeg);
-            let color = getColor(speed, COLORS.windspeed); 
-
+             if (feature.properties.WG > 0 && feature.properties.WG< 90) {
+                return true;
+            }
+             },
+         pointToLayer: function (feature, latlng) {
+            let color = getColor(feature.properties.WG, COLORS.windspeed);
             return L.marker(latlng, {
                 icon: L.divIcon({
-                    className: "aws-div-icon",
-                    html: `<span style="background-color:${color}">${directionText}</span>`
-                })
+                    className: "directionMarker",
+                    html: `<span style="background-color:${color}">${feature.properties.WG.toFixed(1)} </span>`
+                }),
             });
         },
     }).addTo(overlays.direction);
 }
+
+        
+            
 
 
 // Windgeschwindigkeit
@@ -182,9 +183,4 @@ function getColor(value, ramp) {
         if (value >= rule.min && value < rule.max)
             return rule.color;
     }
-}
-
-function getWindDirectionText(deg) {
-    const directions = ["N", "NE", "E", "SE", "S", "SW", "W", "NW"];
-    return directions[Math.round(deg / 45) % 8];
 }
