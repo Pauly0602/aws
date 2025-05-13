@@ -136,16 +136,17 @@ function showSnow(jsondata) {
 function showDirection(jsondata) {
     L.geoJSON(jsondata, {
         filter: function (feature) {
-             if (feature.properties.WG > 0 && feature.properties.WG< 90) {
+             if (feature.properties.WR > 0 && feature.properties.WR < 370) {
                 return true;
             }
              },
          pointToLayer: function (feature, latlng) {
             let color = getColor(feature.properties.WG, COLORS.windspeed);
+            let direction = getDirectionText(feature.properties.WR);
             return L.marker(latlng, {
                 icon: L.divIcon({
                     className: "directionMarker",
-                    html: `<span style="background-color:${color}">${feature.properties.WG.toFixed(1)} </span>`
+                   html: `<span style="background-color:${color}">${direction}</span>`
                 }),
             });
         },
@@ -183,4 +184,8 @@ function getColor(value, ramp) {
         if (value >= rule.min && value < rule.max)
             return rule.color;
     }
+}
+function getDirectionText(deg) {
+    const directions = ["N", "NE", "E", "SE", "S", "SW", "W", "NW"];
+    return directions[Math.round(deg / 45) % 8];
 }
