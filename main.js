@@ -79,7 +79,6 @@ async function loadStations(url) {
                     <li> Relative Luftfeuchtigkeit (%) ${feature.properties.RH || "-"}</li>
                     <li> Windgeschwindigkeit (km/h) ${feature.properties.WG || "-"}</li>
                     <li> Schneehöhe (cm) ${feature.properties.HS || "-"} </li>
-                    <li> Windrichtung ("N", "NE", "E", "SE", "S", "SW", "W", "NW") ${feature.properties.WD || "-"} </li>
                     </ul>
                     <span> ${pointInTime.toLocaleString()} </span>
                  `);
@@ -116,7 +115,7 @@ function showTemperature(jsondata) {
 function showSnow(jsondata) {
     L.geoJSON(jsondata, {
         filter: function (feature) {
-            if (feature.properties.HS > 1 && feature.properties.HS < 500) {
+            if (feature.properties.HS > 1 && feature.properties.HS < 800) {
                 return true;
             }
         },
@@ -142,12 +141,12 @@ function showDirection(jsondata) {
             }
              },
          pointToLayer: function (feature, latlng) {
-            let color = getColor(feature.properties.WG, COLORS.windspeed);
-            let direction = getDirectionText(feature.properties.WR);
+         let color = getColor(feature.properties.WG, COLORS.windspeed);
             return L.marker(latlng, {
                 icon: L.divIcon({
-                    className: "directionMarker",
-                   html: `<span style="background-color:${color}">${direction}</span>`
+                    className: "aws-div-icon-wind",
+                   html: `<span ><i style="transform:rotate(${feature.properties.WR}deg); color:${color}"
+                   class="fa-solid fa-circle-arrow-down"></i></span>`,
                 }),
             });
         },
@@ -185,8 +184,4 @@ function getColor(value, ramp) {
         if (value >= rule.min && value < rule.max)
             return rule.color;
     }
-}
-function getDirectionText(deg) {
-    const directions = ["N", "NE", "E", "SE", "S", "SW", "W", "NW"];
-    return directions[Math.round(deg / 45) % 8];
 }
